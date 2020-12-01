@@ -3,7 +3,7 @@
  * @Author: chelsea.jiang
  * @Date: 2020-11-30 20:20:10
  * @LastEditors: chelsea.jiang
- * @LastEditTime: 2020-12-01 19:28:58
+ * @LastEditTime: 2020-12-01 20:00:38
  */
 const RENDER_TO_DOM = Symbol("render to dom"); // 私有属性
 
@@ -20,7 +20,11 @@ class ElementWrapper {
         if (name.match(/^on([\s\S]+)$/)) {
             this.root.addEventListener(RegExp.$1.replace(/^[\s\S]/, c => c.toLowerCase()), value);
         } else {
-            this.root.setAttribute(name, value);
+            if (name === "className") {
+                this.root.setAttribute("class", value);
+            } else {
+                this.root.setAttribute(name, value);
+            }
         }
     }
     appendChild(component) {
@@ -69,8 +73,16 @@ export class Component {
         this.render()[RENDER_TO_DOM](range);
     }
     reRender() {
-        this._range.deleteContents();
-        this[RENDER_TO_DOM](this._range);
+        // 先插入，再做清空
+        let oldRange = this._range;
+
+        let range = document.createRange();
+        range.setStart(oldRange.startContainer, oldRange.startOffset);
+        range.setEnd(oldRange.startContainer, oldRange.startOffset); // 起点和终点一样
+        this[RENDER_TO_DOM](range);
+    
+        oldRange.setStart(range.endContainer, range.endOffset);
+        oldRange.deleteContents();
     }
     setState(newState) {
         if (this.state === null || typeof this.state !== 'object') {
@@ -115,6 +127,9 @@ function createElement(type, attributes, ...children) {
         for (let child of children) {
             if (typeof child === 'string') {
                 child = new TextWrapper(child);
+            }
+            if (child === null) {
+                continue;
             }
             if (typeof child === 'object' && child instanceof Array) {
                 insertChildren(child);
