@@ -3,7 +3,7 @@
  * @Author: chelsea.jiang
  * @Date: 2020-11-30 18:59:12
  * @LastEditors: chelsea.jiang
- * @LastEditTime: 2020-12-01 20:03:18
+ * @LastEditTime: 2020-12-02 19:20:15
  */
 import xixiToy, { Component } from './xixiToy.js';
 const { render } = xixiToy;
@@ -133,6 +133,9 @@ class Game extends Component {
 // ========================================
 
 render(<Game />, document.getElementById("root"));
+
+// let game = <Game />;
+// console.log(game.vdom);
 
 function calculateWinner(squares) {
     const lines = [
